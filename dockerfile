@@ -8,8 +8,8 @@ WORKDIR /opt/jboss/wildfly
 EXPOSE 8080
 
 # Add a custom script to deploy your application (optional)
-COPY deploy.sh /opt/jboss/wildfly/bin/deploy.sh
-RUN chmod +x /opt/jboss/wildfly/bin/deploy.sh
+#COPY deploy.sh /opt/jboss/wildfly/bin/deploy.sh
+#RUN chmod +x /opt/jboss/wildfly/bin/deploy.sh
 
 # Start WildFly in standalone mode
 CMD ["/opt/jboss/wildfly/bin/standalone.sh", "-b", "0.0.0.0"]
