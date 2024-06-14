@@ -2,16 +2,15 @@ pipeline {
     agent any
 
     environment {
-        // Define environment variables
-        DOCKER_IMAGE = 'wildfly-custom:latest'
-        DEPLOY_DIR = '/opt/jboss/wildfly/standalone/deployments'
+        DOCKER_IMAGE = 'my-wildfly-app'
+        DOCKER_REGISTRY = 'my-docker-registry'
     }
 
     stages {
         stage('Checkout') {
             steps {
-                // Checkout the project from GitHub
-                git 'https://github.com/mosaad96/git_pro.git'
+                // Checkout the code from GitHub
+                git branch: 'main', url: 'https://github.com/mosaad96/git_pro.git'
             }
         }
 
@@ -24,9 +23,9 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                // Build the Docker image
                 script {
-                    docker.build(DOCKER_IMAGE)
+                    // Build the Docker image
+                    sh 'docker build -t ${DOCKER_IMAGE} .'
                 }
             }
         }
@@ -34,22 +33,22 @@ pipeline {
         stage('Deploy') {
             steps {
                 script {
-                    // Get the .jar file
-                    def jarFile = findFiles(glob: '**/target/*.jar')[0]
-
-                    // Deploy the .jar file to the WildFly container
-                    docker.image(DOCKER_IMAGE).inside {
-                        sh "cp ${jarFile} ${DEPLOY_DIR}/"
-                    }
+                    // Create a container from the image and copy the jar file to deployments
+                    sh '''
+                    docker create --name temp-container ${DOCKER_IMAGE}
+                    docker cp target/your-project.jar temp-container:/opt/jboss/wildfly/standalone/deployments/
+                    docker commit temp-container ${DOCKER_IMAGE}
+                    docker rm temp-container
+                    '''
                 }
             }
         }
 
         stage('Run Container') {
             steps {
-                // Run the WildFly container
                 script {
-                    docker.run('-d -p 7070:8080 --name wildfly-app', DOCKER_IMAGE)
+                    // Run the container
+                    sh 'docker run -d --name wildfly-app -p 8080:8080 ${DOCKER_IMAGE}'
                 }
             }
         }
@@ -57,15 +56,8 @@ pipeline {
 
     post {
         always {
-            // Cleanup the container after the pipeline
-            script {
-                try {
-                    sh 'docker stop wildfly-app'
-                    sh 'docker rm wildfly-app'
-                } catch (Exception e) {
-                    echo 'No container to clean up'
-                }
-            }
+            // Clean up Docker images to save space
+            sh 'docker image prune -f'
         }
     }
 }
