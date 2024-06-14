@@ -48,7 +48,7 @@ pipeline {
             steps {
                 script {
                     // Run the container
-                    sh 'docker run -d --name wildfly-app -p 8080:8080 ${DOCKER_IMAGE}'
+                    sh 'docker run -d --name wildfly-app -p 7070:8080 ${DOCKER_IMAGE}'
                 }
             }
         }
