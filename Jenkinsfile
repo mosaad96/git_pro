@@ -1,31 +1,33 @@
+
 pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE = 'my-wildfly-app'
-        DOCKER_REGISTRY = 'my-docker-registry'
+        REPO_URL = 'https://github.com/mosaad96/git_pro.git'
+        JDK_IMAGE = 'openjdk:11-jdk'
+        DOCKER_IMAGE = 'myapp:latest'
     }
 
     stages {
-        stage('Checkout') {
+        stage('Clone Repository') {
             steps {
-                // Checkout the code from GitHub
-                git branch: 'main', url: 'https://github.com/mosaad96/git_pro.git'
+                git branch: 'main', url: "${env.REPO_URL}"
             }
         }
 
         stage('Build') {
             steps {
-                // Build the project using Maven
-                sh 'mvn clean package'
+                script {
+                    // Assuming Maven is used
+                    sh 'mvn clean package'
+                }
             }
         }
 
         stage('Build Docker Image') {
             steps {
                 script {
-                    // Build the Docker image
-                    sh 'docker build -t ${DOCKER_IMAGE} .'
+                    sh "docker build -t ${env.DOCKER_IMAGE} ."
                 }
             }
         }
@@ -33,22 +35,7 @@ pipeline {
         stage('Deploy') {
             steps {
                 script {
-                    // Create a container from the image and copy the jar file to deployments
-                    sh '''
-                    docker create --name temp-container ${DOCKER_IMAGE}
-                    docker cp target/java-maven-app-1.1.0-SNAPSHOT.jar  temp-container:/opt/jboss/wildfly/standalone/deployments/
-                    docker commit temp-container ${DOCKER_IMAGE}
-                    docker rm temp-container
-                    '''
-                }
-            }
-        }
-
-        stage('Run Container') {
-            steps {
-                script {
-                    // Run the container
-                    sh 'docker run -d --name wildfly-app -p 7070:8080 ${DOCKER_IMAGE}'
+                    sh "docker run -d -p 7070:8080 ${env.DOCKER_IMAGE}"
                 }
             }
         }
@@ -56,8 +43,7 @@ pipeline {
 
     post {
         always {
-            // Clean up Docker images to save space
-            sh 'docker image prune -f'
+            cleanWs()
         }
     }
 }
