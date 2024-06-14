@@ -36,7 +36,7 @@ pipeline {
                     // Create a container from the image and copy the jar file to deployments
                     sh '''
                     docker create --name temp-container ${DOCKER_IMAGE}
-                    docker cp target/your-project.jar temp-container:/opt/jboss/wildfly/standalone/deployments/
+                    docker cp target/java-maven-app-1.1.0-SNAPSHOT.jar  temp-container:/opt/jboss/wildfly/standalone/deployments/
                     docker commit temp-container ${DOCKER_IMAGE}
                     docker rm temp-container
                     '''
