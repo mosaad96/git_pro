@@ -41,10 +41,15 @@ pipeline {
         }
     }
 
-    post {
+     post {
         always {
-            cleanWs()
+            script {
+                try {
+                    cleanWs()
+                } catch (Exception e) {
+                    echo "Failed to clean workspace: ${e.getMessage()}"
+                }
+            }
         }
     }
 }
-
