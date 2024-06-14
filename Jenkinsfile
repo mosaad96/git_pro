@@ -49,7 +49,7 @@ pipeline {
             steps {
                 // Run the WildFly container
                 script {
-                    docker.run('-d -p 7070:7070 --name wildfly-app', DOCKER_IMAGE)
+                    docker.run('-d -p 7070:8080 --name wildfly-app', DOCKER_IMAGE)
                 }
             }
         }

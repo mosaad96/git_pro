@@ -5,7 +5,7 @@ FROM jboss/wildfly:latest
 WORKDIR /opt/jboss/wildfly
 
 # Expose the management and application ports
-EXPOSE 7070 9990
+EXPOSE 8080
 
 # Add a custom script to deploy your application (optional)
 #COPY deploy.sh /opt/jboss/wildfly/bin/deploy.sh
